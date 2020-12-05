@@ -32,25 +32,30 @@ int main() {
         -0.5,-0.5,
         0.5,-0.5,
         0.5,0.5,
-
-        0.5,0.5,
         -0.5,0.5,
-        -0.5,-0.5
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
     };
 
 
-    // Init buffer
+    // Vertex buffer
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
     // Fill buffer with data
-    glBufferData(GL_ARRAY_BUFFER, 6*2*sizeof(float), positions, GL_STATIC_DRAW);
-
+    glBufferData(GL_ARRAY_BUFFER, 4*2*sizeof(float), positions, GL_STATIC_DRAW);
     // Describe data that will be found in the buffer to the graphics card
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
+    // Index Buffer
+    unsigned int ibo;
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6* sizeof(unsigned int), indices, GL_STATIC_DRAW);
     // Load shaders
 
     // TODO: Load shaders
@@ -59,7 +64,7 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         // Render
         glClear(GL_COLOR_BUFFER_BIT);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -69,9 +74,18 @@ int main() {
 
     }
 
+
+
+
+    // Cleanup
+
     // Delete program (shader)
 
     //glDeleteProgram(shader)
+
+    // Terminate GLFW library
+    glfwTerminate();
+
     return 0;
 
 }
