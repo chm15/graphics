@@ -1,5 +1,6 @@
 #ifndef VERTEXBUFFERLAYOUT_H
 #define VERTEXBUFFERLAYOUT_H
+#pragma once
 
 #include <vector>
 #include <GL/glew.h>
@@ -35,10 +36,8 @@ class VertexBufferLayout {
     VertexBufferLayout() : stride(0) {}
 
     template<typename T>
-    void push(unsigned int count) {
-        // This is undefined behavior
+    void push(unsigned int count);
         //static_assert(false);
-    }
 
     inline const std::vector<VertexBufferElement> getElements() const {
         return elements;

@@ -1,13 +1,50 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "linearmath/vec3.h"
+#include <string.h>
 
+
+#include "linearmath/vec3.h"
 #include "graphics/renderer.h"
 #include "graphics/vertexbuffer.h"
 #include "graphics/indexbuffer.h"
 #include "graphics/vertexarray.h"
 
+static unsigned int compileShader(unsigned int type, const std::string& source) {
+    unsigned int id = glCreateShader(type);
+    const char* src = source.c_str();
+    glShaderSource(id, 1, &src, nullptr);
+    glCompileShader(id);
+
+    int result;
+    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+    if (result == GL_FALSE) {
+        int length;
+        //glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+        char message[200];
+        glGetShaderInfoLog(id, 200, &length, message);
+        std::string shaderType = (type == GL_VERTEX_SHADER ? "vertex" : "fragment");
+        std::cout << "Failed to compile " << shaderType << " shader!" << std::endl;
+        std::cout << message << std::endl;
+        glDeleteShader(id);
+        return 0;
+    }
+    return id;
+}
+
+static unsigned int createShader(const std::string& vertexShader, const std::string& fragmentShader) {
+    unsigned int program = glCreateProgram();
+    unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
+    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glValidateProgram(program);
+
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+    return program;
+}
 
 int main() {
     GLFWwindow* window;
@@ -51,10 +88,24 @@ int main() {
         2, 3, 0
     };
 
-    // TODO delete this
-    unsigned int vao;
-    GLCall(glGenVertexArrays(1, &vao));
-    GLCall(glBindVertexArray(vao));
+    std::string vertexShader = 
+    "#version 330 core\n"
+    "\n"
+    "layout(location = 0) in vec4 position;"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = position;\n"
+    "}\n";
+    std::string fragmentShader = 
+    "#version 330 core\n"
+    "\n"
+    "layout(location = 0) out vec4 color;"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "   color = vec4(1.0, 0.0, 0.0, 1.0);\n"
+    "}\n";
 
 
     // Vertex array
@@ -72,8 +123,9 @@ int main() {
     IndexBuffer ib(indices, 6);
 
     // Load shaders
+    unsigned int shader = createShader(vertexShader, fragmentShader);
+    glUseProgram(shader);
 
-    // TODO: Load shaders
 
     // Loop until user closes window
     while (!glfwWindowShouldClose(window)) {
@@ -101,7 +153,7 @@ int main() {
 
     // Delete program (shader)
 
-    //glDeleteProgram(shader)
+    glDeleteProgram(shader);
 
     // Terminate GLFW library
     }

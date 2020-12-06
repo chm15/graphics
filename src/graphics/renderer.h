@@ -5,7 +5,7 @@
 #include <WinBase.h>
 #include <iostream>
 
-#define ASSERT(x) if(!(x)) DebugBreak();
+#define ASSERT(x) if(!(x)) std::cout << "Assert in: " << __FILE__ <<  "\nLine " << __LINE__ << std::endl;
 #define GLCall(x) GLClearError();\
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
