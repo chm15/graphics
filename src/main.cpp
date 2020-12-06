@@ -6,6 +6,7 @@
 #include "graphics/renderer.h"
 #include "graphics/vertexbuffer.h"
 #include "graphics/indexbuffer.h"
+#include "graphics/vertexarray.h"
 
 
 int main() {
@@ -14,6 +15,10 @@ int main() {
     if(!glfwInit()) {
         return -1;
     }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create context and window
     window = glfwCreateWindow(640, 480, "Game Engine", NULL, NULL);
@@ -46,13 +51,22 @@ int main() {
         2, 3, 0
     };
 
+    // TODO delete this
+    unsigned int vao;
+    GLCall(glGenVertexArrays(1, &vao));
+    GLCall(glBindVertexArray(vao));
+
+
+    // Vertex array
+    VertexArray va;
 
     // Vertex buffer
     VertexBuffer vb(positions, 4*2*sizeof(float));
 
     // Describe data that will be found in the buffer to the graphics card
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+    VertexBufferLayout layout;
+    layout.push<float>(2);
+    va.addBuffer(vb, layout);
 
     // Index Buffer
     IndexBuffer ib(indices, 6);
@@ -66,7 +80,10 @@ int main() {
         // Render
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
+        // Bind buffers
+        va.bind();
         ib.bind();
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Swap buffers
