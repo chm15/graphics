@@ -3,6 +3,10 @@
 #include <iostream>
 #include "linearmath/vec3.h"
 
+#include "graphics/renderer.h"
+#include "graphics/vertexbuffer.h"
+#include "graphics/indexbuffer.h"
+
 
 int main() {
     GLFWwindow* window;
@@ -27,7 +31,8 @@ int main() {
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-
+    // Scope to ensure everything is removed.
+    {
 
     float positions[] = {
         -0.5,-0.5,
@@ -43,20 +48,15 @@ int main() {
 
 
     // Vertex buffer
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    // Fill buffer with data
-    glBufferData(GL_ARRAY_BUFFER, 4*2*sizeof(float), positions, GL_STATIC_DRAW);
+    VertexBuffer vb(positions, 4*2*sizeof(float));
+
     // Describe data that will be found in the buffer to the graphics card
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
     // Index Buffer
-    unsigned int ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6* sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    IndexBuffer ib(indices, 6);
+
     // Load shaders
 
     // TODO: Load shaders
@@ -64,7 +64,9 @@ int main() {
     // Loop until user closes window
     while (!glfwWindowShouldClose(window)) {
         // Render
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+        ib.bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Swap buffers
@@ -85,6 +87,8 @@ int main() {
     //glDeleteProgram(shader)
 
     // Terminate GLFW library
+    }
+
     glfwTerminate();
 
     return 0;

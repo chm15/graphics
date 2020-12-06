@@ -5,10 +5,13 @@ include(CTest)
 enable_testing()
 
 
+file(GLOB_RECURSE SOURCES src/*.cpp)
+
 add_subdirectory( ${PROJECT_SOURCE_DIR}/GLEW/build/cmake )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/GLFW )
 
-add_executable(game_engine main.cpp)
+#add_executable(game_engine src/main.cpp)
+add_executable(game_engine ${SOURCES})
 
 target_include_directories(game_engine PRIVATE
     ${PROJECT_SOURCE_DIR}/GLEW/include
