@@ -1,3 +1,3 @@
-# game_engine
+# graphics
 
 Required: GLFW and GLEW source code
